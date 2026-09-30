@@ -28,119 +28,175 @@
             transition: all 0.2s ease-in-out;
         }
         
-        .option-card:hover {
+        .option-card:hover, .option-card:focus {
             transform: translateY(-2px);
+        }
+
+        /* קלאס ייעודי להסתרת תוכן ויזואלית אבל השארתו לקוראי מסך */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
         }
     </style>
 </head>
-<body class="min-h-screen construction-pattern flex flex-col items-center justify-center p-4">
+<body class="min-h-screen construction-pattern flex flex-col items-center p-4">
 
-    <!-- מסך הרשמה ותשלום (המסך הראשון) -->
-    <div id="register-screen" class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border-t-8 border-yellow-400">
-        <div class="p-8 text-center bg-gray-900 text-white">
-            <h1 class="text-3xl font-bold mb-2 text-yellow-400">מנהל עבודה בבנייה</h1>
-            <p class="text-gray-300">הכנה מקצועית למבחני ההסמכה</p>
-        </div>
+    <!-- אזור הכרזות בלתי נראה לקוראי מסך (כדי להכריז על החלפת שאלות/הודעות שגיאה) -->
+    <div id="aria-announcer" aria-live="polite" class="sr-only"></div>
+
+    <!-- כפתור דילוג לתוכן המרכזי (חובה בנגישות) -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:right-4 bg-gray-900 text-yellow-400 p-4 rounded-lg z-50">
+        דלג לתוכן המרכזי
+    </a>
+
+    <main id="main-content" class="flex-grow flex items-center justify-center w-full my-8">
         
-        <div class="p-8">
-            <form id="register-form" class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">שם מלא</label>
-                    <input type="text" id="reg-name" required class="w-full px-4 py-3 rounded-lg bg-gray-100 border-gray-300 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors">
+        <!-- מסך הרשמה ותשלום -->
+        <section id="register-screen" class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border-t-8 border-yellow-400">
+            <header class="p-8 text-center bg-gray-900 text-white">
+                <h1 class="text-3xl font-bold mb-2 text-yellow-400">מנהל עבודה בבנייה</h1>
+                <p class="text-gray-300">הכנה מקצועית למבחני ההסמכה</p>
+            </header>
+            
+            <div class="p-8">
+                <form id="register-form" class="space-y-4" novalidate>
+                    <div>
+                        <label for="reg-name" class="block text-gray-700 text-sm font-bold mb-2">שם מלא (חובה)</label>
+                        <input type="text" id="reg-name" name="name" required aria-required="true" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-2 border-gray-200 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-yellow-400/50 transition-colors" autocomplete="name">
+                    </div>
+                    <div>
+                        <label for="reg-email" class="block text-gray-700 text-sm font-bold mb-2">אימייל (חובה)</label>
+                        <input type="email" id="reg-email" name="email" required aria-required="true" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-2 border-gray-200 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-yellow-400/50 transition-colors" autocomplete="email" dir="ltr">
+                    </div>
+                    <div>
+                        <label for="reg-phone" class="block text-gray-700 text-sm font-bold mb-2">מספר טלפון (חובה)</label>
+                        <input type="tel" id="reg-phone" name="phone" required aria-required="true" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-2 border-gray-200 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-yellow-400/50 transition-colors" autocomplete="tel" dir="ltr">
+                    </div>
+                    
+                    <!-- הסכמה משפטית (חובה) -->
+                    <div class="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <div class="flex items-start mb-2">
+                            <input type="checkbox" id="legal-terms" required aria-required="true" class="mt-1 w-5 h-5 text-yellow-500 rounded focus:ring-2 focus:ring-yellow-500">
+                            <label for="legal-terms" class="mr-3 text-sm text-gray-700">
+                                קראתי ואני מסכים/ה <a href="#" class="text-blue-600 underline focus:ring-2 focus:ring-blue-500 rounded">לתקנון ותנאי השימוש</a> ול<a href="#" class="text-blue-600 underline focus:ring-2 focus:ring-blue-500 rounded">מדיניות הפרטיות</a>. (חובה)
+                            </label>
+                        </div>
+                        <div class="flex items-start">
+                            <input type="checkbox" id="marketing-consent" class="mt-1 w-5 h-5 text-yellow-500 rounded focus:ring-2 focus:ring-yellow-500">
+                            <label for="marketing-consent" class="mr-3 text-sm text-gray-700">
+                                אני מאשר/ת קבלת חומרי לימוד ומבצעים עתידיים במייל או ב-SMS. (רשות)
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-[#00d0df] hover:bg-[#00b5c2] text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-[#00d0df]/50 transition-colors mt-6 flex justify-center items-center gap-2 text-lg shadow-md" aria-label="לחץ לתשלום ביישומון ביט">
+                        <span>תשלום ב-bit</span>
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center border-t border-gray-200 pt-4">
+                    <p class="text-sm text-gray-600 mb-2">כבר רכשת פרטי התחברות?</p>
+                    <button onclick="showScreen('login-screen')" class="text-gray-900 font-bold hover:text-yellow-600 underline focus:outline-none focus:ring-2 focus:ring-gray-900 rounded px-2 py-1">התחבר כאן</button>
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">אימייל</label>
-                    <input type="email" id="reg-email" required class="w-full px-4 py-3 rounded-lg bg-gray-100 border-gray-300 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">מספר טלפון</label>
-                    <input type="tel" id="reg-phone" required class="w-full px-4 py-3 rounded-lg bg-gray-100 border-gray-300 focus:border-yellow-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-colors">
+            </div>
+        </section>
+
+        <!-- מסך התחברות -->
+        <section id="login-screen" class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border-t-8 border-gray-900 hidden">
+            <header class="p-8 text-center bg-yellow-400 text-gray-900">
+                <h2 class="text-3xl font-bold mb-2">התחברות למערכת</h2>
+                <p class="text-gray-800">הכנס את הפרטים שקיבלת</p>
+            </header>
+            
+            <div class="p-8">
+                <div id="login-error" class="hidden mb-4 p-4 bg-red-100 text-red-800 rounded-lg text-sm text-center font-bold border border-red-300" role="alert">
+                    שם משתמש או סיסמה שגויים
                 </div>
                 
-                <button type="submit" class="w-full bg-[#00d0df] hover:bg-[#00b5c2] text-white font-bold py-3 px-4 rounded-lg focus:outline-none transition-colors mt-6 flex justify-center items-center gap-2 text-lg shadow-md">
-                    <span>תשלום ב-bit</span>
-                </button>
-            </form>
-            
-            <div class="mt-6 text-center border-t pt-4">
-                <p class="text-sm text-gray-600 mb-2">כבר רכשת פרטי התחברות?</p>
-                <button onclick="showScreen('login-screen')" class="text-gray-900 font-bold hover:text-yellow-600 underline">התחבר כאן</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- מסך התחברות (למי שכבר יש לו משתמש) -->
-    <div id="login-screen" class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden border-t-8 border-gray-900 hidden">
-        <div class="p-8 text-center bg-yellow-400 text-gray-900">
-            <h1 class="text-3xl font-bold mb-2">התחברות למערכת</h1>
-            <p class="text-gray-800">הכנס את הפרטים שקיבלת</p>
-        </div>
-        
-        <div class="p-8">
-            <div id="login-error" class="hidden mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center font-bold">
-                שם משתמש או סיסמה שגויים
-            </div>
-            
-            <form id="login-form" class="space-y-4">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">שם משתמש</label>
-                    <input type="text" id="username" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-gray-300 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 transition-colors">
+                <form id="login-form" class="space-y-4">
+                    <div>
+                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">שם משתמש</label>
+                        <input type="text" id="username" required aria-required="true" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-2 border-gray-200 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-900/50 transition-colors" dir="ltr">
+                    </div>
+                    <div>
+                        <label for="password" class="block text-gray-700 text-sm font-bold mb-2">סיסמה</label>
+                        <input type="password" id="password" required aria-required="true" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-2 border-gray-200 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-gray-900/50 transition-colors" dir="ltr">
+                    </div>
+                    <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-500 transition-colors mt-6">
+                        היכנס למבחן
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center border-t border-gray-200 pt-4">
+                    <button onclick="showScreen('register-screen')" class="text-sm text-gray-600 hover:text-gray-900 underline focus:outline-none focus:ring-2 focus:ring-gray-900 rounded px-2 py-1">חזור למסך ההרשמה והתשלום</button>
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2">סיסמה</label>
-                    <input type="password" id="password" class="w-full px-4 py-3 rounded-lg bg-gray-100 border-gray-300 focus:border-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900 transition-colors">
+            </div>
+        </section>
+
+        <!-- מסך המבחן -->
+        <section id="quiz-screen" class="w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden hidden" aria-labelledby="quiz-title">
+            <header class="p-6 bg-gray-900 text-white flex flex-wrap gap-4 justify-between items-center border-b-4 border-yellow-400">
+                <h2 id="quiz-title" class="text-2xl font-bold">מבחן תרגול לדוגמה</h2>
+                <div class="text-yellow-400 font-bold bg-gray-800 px-4 py-2 rounded-lg" aria-live="polite">
+                    שאלה <span id="current-q-num">1</span> מתוך <span id="total-q-num">3</span>
                 </div>
-                <button type="submit" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded-lg focus:outline-none transition-colors mt-6">
-                    היכנס למבחן
+            </header>
+            
+            <div class="p-8">
+                <h3 id="question-text" class="text-xl font-bold text-gray-800 mb-6 leading-relaxed" tabindex="0"></h3>
+                
+                <div id="options-container" class="space-y-4" role="group" aria-label="אפשרויות תשובה">
+                    <!-- האפשרויות יוזרקו לכאן דרך JS -->
+                </div>
+                
+                <button id="next-btn" class="hidden mt-8 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-yellow-600 transition-colors" aria-hidden="true">
+                    המשך לשאלה הבאה
                 </button>
-            </form>
-            
-            <div class="mt-6 text-center border-t pt-4">
-                <button onclick="showScreen('register-screen')" class="text-sm text-gray-600 hover:text-gray-900 underline">חזור למסך ההרשמה והתשלום</button>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- מסך המבחן -->
-    <div id="quiz-screen" class="w-full max-w-3xl bg-white rounded-xl shadow-2xl overflow-hidden hidden">
-        <div class="p-6 bg-gray-900 text-white flex justify-between items-center border-b-4 border-yellow-400">
-            <h2 class="text-2xl font-bold">מבחן תרגול לדוגמה</h2>
-            <div class="text-yellow-400 font-bold bg-gray-800 px-4 py-2 rounded-lg">
-                שאלה <span id="current-q-num">1</span> מתוך <span id="total-q-num">3</span>
+        <!-- מסך תוצאות -->
+        <section id="results-screen" class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden text-center hidden">
+            <header class="p-8 bg-gray-900 text-white">
+                <h2 class="text-3xl font-bold text-yellow-400 mb-2">סיום המבחן!</h2>
+                <p>הנה התוצאות שלך</p>
+            </header>
+            <div class="p-8">
+                <div class="text-6xl font-bold text-gray-900 mb-4" id="score-display" tabindex="0"></div>
+                <p class="text-lg text-gray-800 mb-8 font-semibold" id="score-message"></p>
+                
+                <button onclick="location.reload()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:ring-4 focus:ring-gray-500 transition-colors">
+                    חזור למסך הראשי
+                </button>
             </div>
-        </div>
-        
-        <div class="p-8">
-            <h3 id="question-text" class="text-xl font-bold text-gray-800 mb-6 leading-relaxed"></h3>
-            
-            <div id="options-container" class="space-y-4">
-                <!-- האפשרויות יוזרקו לכאן דרך JS -->
-            </div>
-            
-            <button id="next-btn" class="hidden mt-8 w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 px-4 rounded-lg transition-colors">
-                המשך לשאלה הבאה
-            </button>
-        </div>
-    </div>
+        </section>
 
-    <!-- מסך תוצאות -->
-    <div id="results-screen" class="w-full max-w-md bg-white rounded-xl shadow-2xl overflow-hidden text-center hidden">
-        <div class="p-8 bg-gray-900 text-white">
-            <h2 class="text-3xl font-bold text-yellow-400 mb-2">סיום המבחן!</h2>
-            <p>הנה התוצאות שלך</p>
-        </div>
-        <div class="p-8">
-            <div class="text-6xl font-bold text-gray-900 mb-4" id="score-display"></div>
-            <p class="text-lg text-gray-600 mb-8" id="score-message"></p>
-            
-            <button onclick="location.reload()" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-4 rounded-lg transition-colors">
-                חזור למסך הראשי
-            </button>
-        </div>
-    </div>
+    </main>
+
+    <!-- פוטר (Footer) נגיש עם קישורים משפטיים -->
+    <footer class="w-full max-w-4xl text-center text-sm text-gray-600 pb-8 mt-auto">
+        <nav aria-label="קישורים שימושיים">
+            <ul class="flex flex-wrap justify-center gap-4">
+                <li><a href="#" class="hover:text-gray-900 underline focus:outline-none focus:ring-2 focus:ring-gray-900 rounded p-1">תקנון ותנאי שימוש</a></li>
+                <li><a href="#" class="hover:text-gray-900 underline focus:outline-none focus:ring-2 focus:ring-gray-900 rounded p-1">מדיניות פרטיות</a></li>
+                <li><a href="#" class="hover:text-gray-900 underline focus:outline-none focus:ring-2 focus:ring-gray-900 rounded p-1">הצהרת נגישות</a></li>
+                <li><a href="#" class="hover:text-gray-900 underline focus:outline-none focus:ring-2 focus:ring-gray-900 rounded p-1">צור קשר</a></li>
+            </ul>
+        </nav>
+        <p class="mt-2">© כל הזכויות שמורות להכנה למבחני מנהל עבודה 2026</p>
+    </footer>
 
     <script>
-        // דאטה של המבחן - 3 שאלות לדוגמה
+        // הדבק כאן את ה-URL מגוגל סקריפט:
+        const scriptURL = 'https://script.google.com/macros/s/הכנס-את-הקוד-שלך-כאן/exec';
+
         const questions = [
             {
                 question: "על פי תקנות הבטיחות בעבודה, מאיזה גובה יש להתקין מעקות בפיגומים?",
@@ -150,7 +206,7 @@
                     "מגובה של 1.5 מטר",
                     "מגובה של 3.0 מטר"
                 ],
-                correctAnswer: 1 // אינדקס של התשובה הנכונה (התשובה השנייה)
+                correctAnswer: 1
             },
             {
                 question: "מהו תפקידו העיקרי של מנהל עבודה ביום יציקת בטון?",
@@ -176,114 +232,173 @@
 
         let currentQuestion = 0;
         let score = 0;
+        const announcer = document.getElementById('aria-announcer');
 
-        // פונקציית מעבר בין מסכים
+        function announce(message) {
+            announcer.innerText = message;
+        }
+
         function showScreen(screenId) {
             document.getElementById('register-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.add('hidden');
             document.getElementById('results-screen').classList.add('hidden');
             
-            document.getElementById(screenId).classList.remove('hidden');
+            const screen = document.getElementById(screenId);
+            screen.classList.remove('hidden');
+            
+            // העברת פוקוס למסך החדש לטובת קוראי מסך
+            if(screenId === 'quiz-screen') {
+                document.getElementById('question-text').focus();
+            } else if (screenId === 'results-screen') {
+                document.getElementById('score-display').focus();
+            }
         }
 
-        // טיפול בטופס ההרשמה והתשלום בביט
+        // טופס הרשמה
         document.getElementById('register-form').addEventListener('submit', function(e) {
-            e.preventDefault(); // מונע רענון של העמוד
+            e.preventDefault();
+            
+            // בדיקת תקינות בסיסית של HTML5
+            if (!this.checkValidity()) {
+                announce('אנא מלא את כל השדות החובה ואשר את התקנון');
+                return;
+            }
             
             const name = document.getElementById('reg-name').value;
-            // כאן אפשר יהיה בעתיד לשמור את הפרטים
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
             
-            alert(`שלום ${name},\nמערכת התשלומים של bit עדיין לא מחוברת.\nבקרוב נוסיף את אפשרות הסליקה!`);
+            const submitBtn = e.target.querySelector('button');
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = 'שומר נתונים...';
+            submitBtn.disabled = true;
+            announce('שולח נתונים למערכת');
+
+            // שליחה לגוגל שיטס
+            fetch(scriptURL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify({ name: name, email: email, phone: phone })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.result === 'success') {
+                    announce('ההרשמה בוצעה בהצלחה');
+                    alert(`שלום ${name},\nפרטיך נשמרו בהצלחה במערכת!\n(בעתיד יופעל כאן תשלום ב-bit)`);
+                    e.target.reset();
+                }
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+            })
+            .catch(error => {
+                announce('שגיאה בשמירת הנתונים');
+                alert('אירעה שגיאה בשמירת הנתונים. אם לא הזנת את הקישור של Google Script בקוד, זו הסיבה. אנא נסה שוב.');
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+            });
         });
 
-        // טיפול בהתחברות למערכת
+        // טופס התחברות
         document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const user = document.getElementById('username').value;
             const pass = document.getElementById('password').value;
             
-            // לוגיקה זמנית: שם משתמש user1 וסיסמה 1234
             if (user === 'user1' && pass === '1234') {
+                document.getElementById('login-error').classList.add('hidden');
                 showScreen('quiz-screen');
                 loadQuestion();
             } else {
-                document.getElementById('login-error').classList.remove('hidden');
+                const errorDiv = document.getElementById('login-error');
+                errorDiv.classList.remove('hidden');
+                announce('שם משתמש או סיסמה שגויים');
             }
         });
 
-        // טעינת שאלה
         function loadQuestion() {
             const q = questions[currentQuestion];
             document.getElementById('current-q-num').innerText = currentQuestion + 1;
-            document.getElementById('question-text').innerText = q.question;
+            const qText = document.getElementById('question-text');
+            qText.innerText = q.question;
+            
+            // הקראת השאלה החדשה לקורא המסך
+            announce(`שאלה ${currentQuestion + 1}: ${q.question}`);
             
             const optionsContainer = document.getElementById('options-container');
             optionsContainer.innerHTML = '';
             
-            document.getElementById('next-btn').classList.add('hidden');
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.add('hidden');
+            nextBtn.setAttribute('aria-hidden', 'true');
             
             q.options.forEach((opt, index) => {
                 const btn = document.createElement('button');
-                btn.className = 'option-card w-full text-right p-4 rounded-lg border-2 border-gray-200 bg-gray-50 hover:border-yellow-400 hover:bg-yellow-50 text-gray-800 font-semibold focus:outline-none';
+                // הוספת פוקוס ברור לניווט במקלדת
+                btn.className = 'option-card w-full text-right p-4 rounded-lg border-2 border-gray-300 bg-gray-50 hover:border-yellow-500 hover:bg-yellow-50 focus:border-yellow-500 focus:bg-yellow-50 focus:outline-none focus:ring-4 focus:ring-yellow-400/50 text-gray-800 font-semibold';
                 btn.innerText = opt;
+                btn.setAttribute('aria-label', `תשובה ${index + 1}: ${opt}`);
                 btn.onclick = () => selectOption(index, btn);
                 optionsContainer.appendChild(btn);
             });
         }
 
-        // בחירת תשובה
         function selectOption(selectedIndex, btnElement) {
             const q = questions[currentQuestion];
             const allButtons = document.getElementById('options-container').children;
             
-            // ניטרול לחיצות נוספות
             for(let btn of allButtons) {
                 btn.onclick = null;
-                btn.classList.remove('hover:border-yellow-400', 'hover:bg-yellow-50');
+                btn.classList.remove('hover:border-yellow-500', 'hover:bg-yellow-50', 'focus:border-yellow-500', 'focus:bg-yellow-50', 'focus:ring-4', 'focus:ring-yellow-400/50');
             }
             
             if (selectedIndex === q.correctAnswer) {
-                btnElement.classList.remove('border-gray-200', 'bg-gray-50');
-                btnElement.classList.add('border-green-500', 'bg-green-100', 'text-green-800');
+                btnElement.classList.remove('border-gray-300', 'bg-gray-50');
+                btnElement.classList.add('border-green-600', 'bg-green-100', 'text-green-900', 'font-bold');
+                announce('תשובה נכונה');
                 score++;
             } else {
-                btnElement.classList.remove('border-gray-200', 'bg-gray-50');
-                btnElement.classList.add('border-red-500', 'bg-red-100', 'text-red-800');
+                btnElement.classList.remove('border-gray-300', 'bg-gray-50');
+                btnElement.classList.add('border-red-600', 'bg-red-100', 'text-red-900');
                 
-                // סימון התשובה הנכונה
-                allButtons[q.correctAnswer].classList.remove('border-gray-200', 'bg-gray-50');
-                allButtons[q.correctAnswer].classList.add('border-green-500', 'bg-green-100');
+                allButtons[q.correctAnswer].classList.remove('border-gray-300', 'bg-gray-50');
+                allButtons[q.correctAnswer].classList.add('border-green-600', 'bg-green-100', 'text-green-900');
+                announce(`תשובה שגויה. התשובה הנכונה היא: ${q.options[q.correctAnswer]}`);
             }
             
-            document.getElementById('next-btn').classList.remove('hidden');
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.remove('hidden');
+            nextBtn.removeAttribute('aria-hidden');
+            nextBtn.focus(); // העברת פוקוס אוטומטית לכפתור ההמשך
         }
 
-        // מעבר לשאלה הבאה
         document.getElementById('next-btn').addEventListener('click', () => {
             currentQuestion++;
             if (currentQuestion < questions.length) {
                 loadQuestion();
+                document.getElementById('question-text').focus();
             } else {
                 showResults();
             }
         });
 
-        // מסך תוצאות
         function showResults() {
             showScreen('results-screen');
             const finalScore = Math.round((score / questions.length) * 100);
-            document.getElementById('score-display').innerText = finalScore;
+            const display = document.getElementById('score-display');
+            display.innerText = finalScore + '%';
             
             let message = "";
             if(finalScore >= 70) {
                 message = "כל הכבוד! עברת את התרגול בהצלחה.";
-                document.getElementById('score-display').classList.add('text-green-600');
+                display.classList.add('text-green-700');
             } else {
                 message = "לא נורא, כדאי לחזור על החומר ולנסות שוב.";
-                document.getElementById('score-display').classList.add('text-red-600');
+                display.classList.add('text-red-700');
             }
             document.getElementById('score-message').innerText = message;
+            announce(`הסתיים המבחן. הציון שלך הוא ${finalScore} אחוז. ${message}`);
         }
     </script>
 </body>
